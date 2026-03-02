@@ -1,0 +1,21 @@
+name: Build Docker Dev
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Build Docker Compose Dev
+        run: docker compose up --build -d
+
+      - name: Shut down containers
+        run: docker compose down
