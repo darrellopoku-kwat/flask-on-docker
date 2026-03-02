@@ -1,0 +1,61 @@
+###########
+# BUILDER #
+###########
+FROM python:3.11-slim-bookworm as builder
+
+WORKDIR /usr/src/app
+
+ENV PYTHONDONTWRITEBYTECODE=1
+ENV PYTHONUNBUFFERED=1
+
+# system deps for building wheels (psycopg2 etc.)
+RUN apt-get update \
+  && apt-get install -y --no-install-recommends gcc \
+  && rm -rf /var/lib/apt/lists/*
+
+# lint (optional)
+RUN pip install --upgrade pip \
+  && pip install flake8==6.0.0
+
+COPY . /usr/src/app/
+RUN flake8 .
+
+# build wheels
+COPY ./requirements.txt /usr/src/app/requirements.txt
+RUN pip wheel --no-cache-dir --no-deps --wheel-dir /usr/src/app/wheels -r requirements.txt
+
+
+#########
+# FINAL #
+#########
+FROM python:3.11-slim-bookworm
+
+# create user + dirs
+RUN mkdir -p /home/app \
+  && addgroup --system app \
+  && adduser --system --group app
+
+ENV HOME=/home/app
+ENV APP_HOME=/home/app/web
+RUN mkdir -p $APP_HOME
+WORKDIR $APP_HOME
+
+# runtime deps (netcat for entrypoint wait loop)
+RUN apt-get update \
+  && apt-get install -y --no-install-recommends netcat-openbsd \
+  && rm -rf /var/lib/apt/lists/*
+
+# install python deps from wheels
+COPY --from=builder /usr/src/app/wheels /wheels
+COPY --from=builder /usr/src/app/requirements.txt .
+RUN pip install --upgrade pip \
+  && pip install --no-cache-dir /wheels/*
+
+# copy entrypoint + app
+COPY ./entrypoint.sh $APP_HOME/entrypoint.sh
+COPY . $APP_HOME
+
+RUN chown -R app:app $APP_HOME
+USER app
+
+ENTRYPOINT ["/home/app/web/entrypoint.sh"]
