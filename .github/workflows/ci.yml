@@ -14,9 +14,5 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Build Docker Compose Dev
-        run: docker compose up --build -d
-
-      - name: Shut down containers
-        run: docker compose down
-        
+      - name: Build development Docker images
+        run: docker compose build
