@@ -14,7 +14,9 @@ Below is a demonstration of:
 - Uploading an image
 - Viewing the uploaded image
 
-![App Demo](demo.gif)
+<p align="center">
+  <img src="demo.gif" width="700">
+</p>
 
 ## Development Build Instructions
 
