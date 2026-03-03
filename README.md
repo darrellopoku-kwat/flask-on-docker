@@ -38,28 +38,33 @@ $ docker compose version
 
 ## Development 
 
-### 1) Clone the repo and enter flash-on-docker
+### 1) Clone the Repository
+
 ```bash
 $ git clone https://github.com/darrellopoku-kwat/flask-on-docker.git
 $ cd flask-on-docker 
 ```
-### 2) Create Development Environment File
+### 2) Create Required Development Environment File
 
 For security, environment files are not committed to the repository.
 
-Create a files in flask-on-docker (project root):
+Create the following files in the project root directory:
+
 -  `.env.dev`- used for development configuration
 - `.env.prod`- used for production configuration
-Each file should define the environment variables your app requires( ex. `FLASK_APP`, `FLASK_DEBUG`, `DATABASE_URL`,`SQL_HOST`, `SQL_PORT`, etc.)
 
-**Ensure this file matches the variables referenced in** `docker-compose.yml`
+Each file should define the environment variables required by the application (for example: `FLASK_APP`, `FLASK_DEBUG`, `DATABASE_URL`,`SQL_HOST`, `SQL_PORT`, etc.)
 
-### 3) Build and start the services
+These variables configure the Flask application and database connection for their respective environments.
+
+**Ensure this file matches the variables referenced in** `docker-compose.yml` **and** `docker-compose.prod.yml`.
+
+### 3) Build and Start the Services
 
 ```bash
 docker compose up --build
 ```
-This will:
+This command  will:
 - Build the Flask container
 - Start the development server
 - Initialize the required services
@@ -72,10 +77,9 @@ If Docker is running locally, open the application at:
 
 ##### Running on a Remote Server (SSH Port Forwarding Required)
 
-If Docker is running on a remote server, you must forward the application port to your local machine to access
-the application from your local browser.
+If Docker is running on a remote server, you must forward the application port to your local machine to access the application from your local browser.
 
-In another terminal, run:
+Open another terminal, and  run:
 ```bash
 ssh -N your_username@your_server_address -p your_ssh_port -L 1093:127.0.0.1:1093
 ```
@@ -92,11 +96,47 @@ After establishing the SSH connection, open:
 **If Docker is running locally, port forwarding is not required.**
 
 ---
-**Hello page**: `http://localhost:1093`
+### Application Routes
 
-**Viewing the Updated hello message can be accessed at**: `http://localhost:1093/static/hello.txt`
+**Home Page**: `http://localhost:1093`
 
-**Uploading images files can be accessed at**: `http://localhost:1093/upload`
+**Static Hello Page**: `http://localhost:1093/static/hello.txt`
 
-**Viewing uploaded images can be accessed at**: `http://localhost:1093/media/FILE_NAME`
+**Upload Page**: `http://localhost:1093/upload`
 
+**View Uploaded Image**: `http://localhost:1093/media/FILE_NAME`
+
+### Stopping the Development Services
+To stop the running containers, Press:
+
+`Ctrl +C`
+
+in the terminal where `docker compose up` is running.
+
+Then run:
+
+```bash
+docker compose down
+```
+
+This command will:
+- Stop and remove the containers
+- Remove the default Docker network 
+
+If  you  also want to remove all associated volumes including database data:
+```bash
+docker compose down -v
+```
+### Resetting the Development Environment
+
+To completely reset the environment (including the database) run:
+
+```bash
+docker compose down -v
+docker compose up --build
+```
+---
+
+For any issues reproducing the development or production environments, ensure Docker is running and that environment variables are correctly defined in `.env.dev` and `.env.prod`.
+
+This repository demonstrates best practices for containerized Python services, structured environment configuration, and CI-validated Docker builds.
